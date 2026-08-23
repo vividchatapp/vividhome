@@ -1,11 +1,11 @@
-# PI-CHAT GATEWAY - Linux ARM64
+# PI-CHAT GATEWAY - Linux ARM64 / Raspberry Pi 3 (64-bit OS)
 
 **Platform:** Linux ARM64 (AArch64, 64-bit)
 **File:** `server`
 
 ## System Requirements
 
-- Raspberry Pi 3/4/5 or Zero 2 W running a **64-bit** OS, or any other ARM64 Linux device
+- Raspberry Pi 3 running a **64-bit** OS, or any other ARM64 Linux device
 - No additional dependencies required — the web UI is embedded in the binary
 
 ## How to Run

@@ -47,13 +47,18 @@ set CGO_ENABLED=0
 :: Create all target directories
 echo Creating target directories...
 for %%d in (
-    "windows_x64"
-    "linux_x64"
+    "freebsd_x64"
     "linux_arm64"
-    "linux_arm_pi_zero_w"
+    "linux_arm_pi2"
     "linux_arm_pi3_32"
-    "mac_x64"
+    "linux_arm_pi_zero_w"
+    "linux_x64"
+    "linux_x86"
     "mac_arm64"
+    "mac_x64"
+    "windows_arm64"
+    "windows_x64"
+    "windows_x86"
 ) do (
     if not exist "executables\%%~d" mkdir "executables\%%~d"
 )
@@ -61,9 +66,98 @@ echo Done.
 echo.
 
 :: ============================================================
+:: FreeBSD Target
+:: ============================================================
+echo [1/12] Building for FreeBSD x64...
+set GOOS=freebsd
+set GOARCH=amd64
+set GOARM=
+go build -ldflags="-s -w" -o executables\freebsd_x64\server .\cmd\server
+if %ERRORLEVEL% equ 0 (echo   OK) else (echo   FAILED)
+echo.
+
+:: ============================================================
+:: Linux Targets
+:: ============================================================
+echo [2/12] Building for Linux ARM64 / Raspberry Pi 3 64-bit...
+set GOOS=linux
+set GOARCH=arm64
+set GOARM=
+go build -ldflags="-s -w" -o executables\linux_arm64\server .\cmd\server
+if %ERRORLEVEL% equ 0 (echo   OK) else (echo   FAILED)
+echo.
+
+echo [3/12] Building for Raspberry Pi 2 (32-bit OS, ARMv7)...
+set GOOS=linux
+set GOARCH=arm
+set GOARM=7
+go build -ldflags="-s -w" -o executables\linux_arm_pi2\server .\cmd\server
+if %ERRORLEVEL% equ 0 (echo   OK) else (echo   FAILED)
+echo.
+
+echo [4/12] Building for Raspberry Pi 3 (32-bit OS, ARMv7)...
+set GOOS=linux
+set GOARCH=arm
+set GOARM=7
+go build -ldflags="-s -w" -o executables\linux_arm_pi3_32\server .\cmd\server
+if %ERRORLEVEL% equ 0 (echo   OK) else (echo   FAILED)
+echo.
+
+echo [5/12] Building for Raspberry Pi Zero W / Pi 1 (ARMv6)...
+set GOOS=linux
+set GOARCH=arm
+set GOARM=6
+go build -ldflags="-s -w" -o executables\linux_arm_pi_zero_w\server .\cmd\server
+if %ERRORLEVEL% equ 0 (echo   OK) else (echo   FAILED)
+echo.
+
+echo [6/12] Building for Linux x64...
+set GOOS=linux
+set GOARCH=amd64
+set GOARM=
+go build -ldflags="-s -w" -o executables\linux_x64\server .\cmd\server
+if %ERRORLEVEL% equ 0 (echo   OK) else (echo   FAILED)
+echo.
+
+echo [7/12] Building for Linux x86...
+set GOOS=linux
+set GOARCH=386
+set GOARM=
+go build -ldflags="-s -w" -o executables\linux_x86\server .\cmd\server
+if %ERRORLEVEL% equ 0 (echo   OK) else (echo   FAILED)
+echo.
+
+:: ============================================================
+:: macOS Targets
+:: ============================================================
+echo [8/12] Building for macOS Apple Silicon...
+set GOOS=darwin
+set GOARCH=arm64
+set GOARM=
+go build -ldflags="-s -w" -o executables\mac_arm64\server .\cmd\server
+if %ERRORLEVEL% equ 0 (echo   OK) else (echo   FAILED)
+echo.
+
+echo [9/12] Building for macOS Intel x64...
+set GOOS=darwin
+set GOARCH=amd64
+set GOARM=
+go build -ldflags="-s -w" -o executables\mac_x64\server .\cmd\server
+if %ERRORLEVEL% equ 0 (echo   OK) else (echo   FAILED)
+echo.
+
+:: ============================================================
 :: Windows Targets
 :: ============================================================
-echo [1/7] Building for Windows x64...
+echo [10/12] Building for Windows ARM64...
+set GOOS=windows
+set GOARCH=arm64
+set GOARM=
+go build -ldflags="-s -w" -o executables\windows_arm64\server.exe .\cmd\server
+if %ERRORLEVEL% equ 0 (echo   OK) else (echo   FAILED)
+echo.
+
+echo [11/12] Building for Windows x64...
 set GOOS=windows
 set GOARCH=amd64
 set GOARM=
@@ -74,54 +168,11 @@ echo.
 :: ============================================================
 :: Linux Targets
 :: ============================================================
-echo [2/7] Building for Linux x64...
-set GOOS=linux
-set GOARCH=amd64
+echo [12/12] Building for Windows x86...
+set GOOS=windows
+set GOARCH=386
 set GOARM=
-go build -ldflags="-s -w" -o executables\linux_x64\server .\cmd\server
-if %ERRORLEVEL% equ 0 (echo   OK) else (echo   FAILED)
-echo.
-
-echo [3/7] Building for Linux ARM64 (e.g. Pi 3/4/5 / Zero 2 W, 64-bit OS)...
-set GOOS=linux
-set GOARCH=arm64
-set GOARM=
-go build -ldflags="-s -w" -o executables\linux_arm64\server .\cmd\server
-if %ERRORLEVEL% equ 0 (echo   OK) else (echo   FAILED)
-echo.
-
-echo [4/7] Building for Raspberry Pi Zero W / Pi 1 (ARMv6)...
-set GOOS=linux
-set GOARCH=arm
-set GOARM=6
-go build -ldflags="-s -w" -o executables\linux_arm_pi_zero_w\server .\cmd\server
-if %ERRORLEVEL% equ 0 (echo   OK) else (echo   FAILED)
-echo.
-
-echo [5/7] Building for Raspberry Pi 2/3/4/5 (32-bit OS, ARMv7)...
-set GOOS=linux
-set GOARCH=arm
-set GOARM=7
-go build -ldflags="-s -w" -o executables\linux_arm_pi3_32\server .\cmd\server
-if %ERRORLEVEL% equ 0 (echo   OK) else (echo   FAILED)
-echo.
-
-:: ============================================================
-:: macOS Targets
-:: ============================================================
-echo [6/7] Building for macOS Intel (x64)...
-set GOOS=darwin
-set GOARCH=amd64
-set GOARM=
-go build -ldflags="-s -w" -o executables\mac_x64\server .\cmd\server
-if %ERRORLEVEL% equ 0 (echo   OK) else (echo   FAILED)
-echo.
-
-echo [7/7] Building for macOS Apple Silicon (M1/M2/M3/M4)...
-set GOOS=darwin
-set GOARCH=arm64
-set GOARM=
-go build -ldflags="-s -w" -o executables\mac_arm64\server .\cmd\server
+go build -ldflags="-s -w" -o executables\windows_x86\server.exe .\cmd\server
 if %ERRORLEVEL% equ 0 (echo   OK) else (echo   FAILED)
 echo.
 
@@ -136,13 +187,17 @@ echo Output sizes:
 echo.
 
 for %%d in (
-    "windows_x64\server.exe"
-    "linux_x64\server"
+    "freebsd_x64\server"
     "linux_arm64\server"
-    "linux_arm_pi_zero_w\server"
+    "linux_arm_pi2\server"
     "linux_arm_pi3_32\server"
-    "mac_x64\server"
+    "linux_arm_pi_zero_w\server"
+    "linux_x64\server"
     "mac_arm64\server"
+    "mac_x64\server"
+    "windows_arm64\server.exe"
+    "windows_x64\server.exe"
+    "windows_x86\server.exe"
 ) do (
     if exist "executables\%%~d" (
         for %%f in ("executables\%%~d") do (

@@ -30,13 +30,18 @@ $env:CGO_ENABLED = "0"
 
 # Targets configuration
 $targets = @(
-    @{ Name = "[1/7] Building for Windows x64..."; OS = "windows"; Arch = "amd64"; Arm = ""; Dir = "windows_x64"; Out = "server.exe" },
-    @{ Name = "[2/7] Building for Linux x64..."; OS = "linux"; Arch = "amd64"; Arm = ""; Dir = "linux_x64"; Out = "server" },
-    @{ Name = "[3/7] Building for Linux ARM64 (e.g. Pi 3/4/5 / Zero 2 W, 64-bit OS)..."; OS = "linux"; Arch = "arm64"; Arm = ""; Dir = "linux_arm64"; Out = "server" },
-    @{ Name = "[4/7] Building for Raspberry Pi Zero W / Pi 1 (ARMv6)..."; OS = "linux"; Arch = "arm"; Arm = "6"; Dir = "linux_arm_pi_zero_w"; Out = "server" },
-    @{ Name = "[5/7] Building for Raspberry Pi 2/3/4/5 (32-bit OS, ARMv7)..."; OS = "linux"; Arch = "arm"; Arm = "7"; Dir = "linux_arm_pi3_32"; Out = "server" },
-    @{ Name = "[6/7] Building for macOS Intel (x64)..."; OS = "darwin"; Arch = "amd64"; Arm = ""; Dir = "mac_x64"; Out = "server" },
-    @{ Name = "[7/7] Building for macOS Apple Silicon (M1/M2/M3/M4)..."; OS = "darwin"; Arch = "arm64"; Arm = ""; Dir = "mac_arm64"; Out = "server" }
+    @{ Name = "[1/12] Building for FreeBSD x64..."; OS = "freebsd"; Arch = "amd64"; Arm = ""; Dir = "freebsd_x64"; Out = "server" },
+    @{ Name = "[2/12] Building for Linux ARM64 / Raspberry Pi 3 64-bit..."; OS = "linux"; Arch = "arm64"; Arm = ""; Dir = "linux_arm64"; Out = "server" },
+    @{ Name = "[3/12] Building for Raspberry Pi 2 (32-bit OS, ARMv7)..."; OS = "linux"; Arch = "arm"; Arm = "7"; Dir = "linux_arm_pi2"; Out = "server" },
+    @{ Name = "[4/12] Building for Raspberry Pi 3 (32-bit OS, ARMv7)..."; OS = "linux"; Arch = "arm"; Arm = "7"; Dir = "linux_arm_pi3_32"; Out = "server" },
+    @{ Name = "[5/12] Building for Raspberry Pi Zero W / Pi 1 (ARMv6)..."; OS = "linux"; Arch = "arm"; Arm = "6"; Dir = "linux_arm_pi_zero_w"; Out = "server" },
+    @{ Name = "[6/12] Building for Linux x64..."; OS = "linux"; Arch = "amd64"; Arm = ""; Dir = "linux_x64"; Out = "server" },
+    @{ Name = "[7/12] Building for Linux x86..."; OS = "linux"; Arch = "386"; Arm = ""; Dir = "linux_x86"; Out = "server" },
+    @{ Name = "[8/12] Building for macOS Apple Silicon..."; OS = "darwin"; Arch = "arm64"; Arm = ""; Dir = "mac_arm64"; Out = "server" },
+    @{ Name = "[9/12] Building for macOS Intel x64..."; OS = "darwin"; Arch = "amd64"; Arm = ""; Dir = "mac_x64"; Out = "server" },
+    @{ Name = "[10/12] Building for Windows ARM64..."; OS = "windows"; Arch = "arm64"; Arm = ""; Dir = "windows_arm64"; Out = "server.exe" },
+    @{ Name = "[11/12] Building for Windows x64..."; OS = "windows"; Arch = "amd64"; Arm = ""; Dir = "windows_x64"; Out = "server.exe" },
+    @{ Name = "[12/12] Building for Windows x86..."; OS = "windows"; Arch = "386"; Arm = ""; Dir = "windows_x86"; Out = "server.exe" }
 )
 
 # Ensure target directories exist

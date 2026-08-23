@@ -1,14 +1,14 @@
-# PI-CHAT GATEWAY - Raspberry Pi 2/3/4/5 (32-bit OS)
+# PI-CHAT GATEWAY - Raspberry Pi 3 (32-bit OS)
 
 **Platform:** Linux ARMv7 (32-bit)
 **File:** `server`
 
 ## System Requirements
 
-- Raspberry Pi 2, 3, 4, or 5 running a **32-bit** OS (ARMv7), or any other ARMv7 Linux device
+- Raspberry Pi 3 running a **32-bit** OS (ARMv7), or any other ARMv7 Linux device
 - No additional dependencies required — the web UI is embedded in the binary
 
-> **Note:** If your Pi runs a **64-bit** OS, use the binary in [linux_arm64](../linux_arm64) instead. For a Pi Zero W / Pi 1, use [linux_arm_pi_zero_w](../linux_arm_pi_zero_w).
+> **Note:** If your Pi 3 runs a **64-bit** OS, use [linux_arm64](../linux_arm64) instead. For a Pi Zero W / Pi 1, use [linux_arm_pi_zero_w](../linux_arm_pi_zero_w).
 
 ## How to Run
 
