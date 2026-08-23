@@ -2,8 +2,7 @@
 /data/
 
 # Local build artifacts
-/server.exe
-/server.exe~
+
 
 # LLM request/response dumps
 llm_dumps/
