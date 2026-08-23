@@ -134,7 +134,12 @@ data/
 
 ---
 
-## Context Sliding
+## Conversation Modes and Context Sliding
+
+Each conversation can use either `Chat` mode, which sends both user and
+assistant messages, or `Story` mode, which sends assistant responses and the
+current user message. The `Return sends` application setting controls whether
+Enter submits the message; when disabled, use Ctrl+Enter or the Send button.
 
 Before each upstream request, the backend builds:
 

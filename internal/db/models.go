@@ -24,6 +24,7 @@ type Settings struct {
 	Model        string `json:"model"`
 	SystemPrompt string `json:"system_prompt"`
 	MaxTurns     int    `json:"max_turns"` // e.g., 6, 12, 20
+	Mode         string `json:"mode"`      // "chat" sends both roles; "story" sends assistant replies + current user message
 	Voice        bool   `json:"voice"`     // TTS on/off
 }
 
@@ -31,6 +32,7 @@ type Settings struct {
 // (browser) — each browser gets its own settings via its client ID.
 type AppSettings struct {
 	DefaultSystemPromptID string `json:"default_system_prompt_id"`
+	ReturnToSend          bool   `json:"return_to_send"`
 	Voice                 bool   `json:"voice"`       // TTS on/off
 	VoiceSpeed            int    `json:"voice_speed"` // 1-10, 1 is normal speed
 	VoiceName             string `json:"voice_name"`  // Edge TTS voice ID

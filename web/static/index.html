@@ -74,6 +74,17 @@
           </select>
         </div>
         <div class="settings-group">
+          <label for="sel-mode">Mode</label>
+          <select id="sel-mode">
+            <option value="chat">Chat</option>
+            <option value="story">Story</option>
+          </select>
+        </div>
+        <label class="settings-toggle" title="Send when Return is pressed">
+          <input id="chk-return-to-send" type="checkbox" checked>
+          <span>Return sends</span>
+        </label>
+        <div class="settings-group">
           <button id="btn-voice" class="btn btn-secondary voice-btn" title="Toggle voice">
             <svg class="icon btn-svg voice-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5L6 9H2v6h4l5 4V5z"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>
             <span class="voice-text">Voice Off</span>

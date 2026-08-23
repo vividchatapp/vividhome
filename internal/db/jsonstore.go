@@ -354,6 +354,13 @@ func (s *JSONStore) GetAppSettings(clientID string) (AppSettings, error) {
 	if err := json.Unmarshal(data, &settings); err != nil {
 		return AppSettings{}, err
 	}
+	var fields map[string]json.RawMessage
+	if err := json.Unmarshal(data, &fields); err != nil {
+		return AppSettings{}, err
+	}
+	if _, ok := fields["return_to_send"]; !ok {
+		settings.ReturnToSend = true
+	}
 	return settings, nil
 }
 

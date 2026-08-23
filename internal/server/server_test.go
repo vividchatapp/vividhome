@@ -27,6 +27,27 @@ func newFakeStore() *fakeStore {
 	}
 }
 
+func TestStoryContextKeepsAssistantRepliesAndLatestUserMessage(t *testing.T) {
+	messages := []db.Message{
+		{Role: "user", Content: "old prompt"},
+		{Role: "assistant", Content: "first scene"},
+		{Role: "user", Content: "old direction"},
+		{Role: "assistant", Content: "second scene"},
+		{Role: "user", Content: "continue"},
+	}
+
+	got := storyContext(messages)
+	if len(got) != 3 {
+		t.Fatalf("expected 3 story context messages, got %d", len(got))
+	}
+	expected := []string{"first scene", "second scene", "continue"}
+	for i, message := range got {
+		if message.Content != expected[i] {
+			t.Errorf("message %d: expected %q, got %q", i, expected[i], message.Content)
+		}
+	}
+}
+
 func (f *fakeStore) ListProviders() ([]db.Provider, error) {
 	list := make([]db.Provider, 0, len(f.providers))
 	for _, p := range f.providers {

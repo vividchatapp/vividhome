@@ -30,6 +30,7 @@
     defaultPromptId: '',
     editingPromptId: null,
     editingProviderId: null,
+    appSettings: {},
   };
 
   // ---------- Audio State & Cache ----------
@@ -57,6 +58,8 @@
     selModel: $('sel-model'),
     selSystemPrompt: $('sel-system-prompt'),
     selContext: $('sel-context'),
+    selMode: $('sel-mode'),
+    chkReturnToSend: $('chk-return-to-send'),
     btnVoice: $('btn-voice'),
     selVoiceSpeed: $('sel-voice-speed'),
     selVoiceName: $('sel-voice-name'),
@@ -240,6 +243,30 @@
     applySettingsCollapsed(collapsed);
   }
 
+  // Keep the composer above mobile keyboards that overlay the page instead
+  // of resizing the layout viewport.
+  function initKeyboardAdjustment() {
+    if (!window.visualViewport) return;
+
+    let fullViewportHeight = Math.max(window.innerHeight, window.visualViewport.height);
+
+    const updateKeyboardOffset = () => {
+      const isMobile = window.matchMedia('(max-width: 768px)').matches;
+      const viewport = window.visualViewport;
+      const keyboardHeight = fullViewportHeight - viewport.height - viewport.offsetTop;
+      if (keyboardHeight <= 100) {
+        fullViewportHeight = Math.max(fullViewportHeight, window.innerHeight, viewport.height);
+      }
+      const offset = isMobile && keyboardHeight > 100 ? keyboardHeight : 0;
+      document.documentElement.style.setProperty('--keyboard-offset', `${Math.max(0, offset)}px`);
+    };
+
+    window.visualViewport.addEventListener('resize', updateKeyboardOffset);
+    window.visualViewport.addEventListener('scroll', updateKeyboardOffset);
+    window.addEventListener('resize', updateKeyboardOffset);
+    updateKeyboardOffset();
+  }
+
   // ---------- Mobile sidebar ----------
   function openSidebar() {
     el.sidebar.classList.add('open');
@@ -376,7 +403,9 @@
   async function loadAppSettings() {
     try {
       const settings = await api('/api/settings');
+      state.appSettings = settings;
       state.defaultPromptId = settings.default_system_prompt_id || '';
+      el.chkReturnToSend.checked = settings.return_to_send !== false;
     } catch (err) {
       state.defaultPromptId = '';
       console.error('Failed to load app settings:', err.message);
@@ -905,6 +934,7 @@
       model: el.selModel.value || '',
       system_prompt: '',
       max_turns: parseInt(el.selContext.value, 10) || 12,
+      mode: el.selMode.value || 'chat',
     };
   }
 
@@ -916,6 +946,7 @@
       el.selModel.value = settings.model;
     }
     el.selContext.value = String(settings.max_turns || 12);
+    el.selMode.value = settings.mode === 'story' ? 'story' : 'chat';
     syncSystemPromptSelect();
   }
 
@@ -926,6 +957,7 @@
       model: el.selModel.value || '',
       system_prompt: state.currentConv.settings.system_prompt || '',
       max_turns: parseInt(el.selContext.value, 10) || 12,
+      mode: el.selMode.value === 'story' ? 'story' : 'chat',
     };
     try {
       await api(`/api/conversations/${encodeURIComponent(state.currentConvId)}`, {
@@ -1573,7 +1605,7 @@
   el.btnSaveDefaultPrompt.addEventListener('click', saveDefaultPrompt);
 
   el.inputMessage.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
+    if (e.key === 'Enter' && !e.shiftKey && (el.chkReturnToSend.checked || e.ctrlKey || e.metaKey)) {
       e.preventDefault();
       sendMessage();
     }
@@ -1620,8 +1652,26 @@
     }
   });
 
+  el.selMode.addEventListener('change', saveSettings);
+  el.chkReturnToSend.addEventListener('change', async () => {
+    try {
+      await api('/api/settings', {
+        method: 'PUT',
+        body: {
+          ...state.appSettings,
+          default_system_prompt_id: state.defaultPromptId,
+          return_to_send: el.chkReturnToSend.checked,
+        },
+      });
+      state.appSettings.return_to_send = el.chkReturnToSend.checked;
+    } catch (err) {
+      alert(err.message);
+    }
+  });
+
   // ---------- Init ----------
   initSettingsCollapse();
+  initKeyboardAdjustment();
 
   async function init() {
     try {

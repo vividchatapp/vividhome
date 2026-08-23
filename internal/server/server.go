@@ -631,10 +631,17 @@ func (s *Server) handleChat(w http.ResponseWriter, r *http.Request) {
 		c.Title = summarizeTitle(msg)
 	}
 
+	// Story mode keeps the narrative and the latest prompt while omitting
+	// prior user messages from the upstream context.
+	history := c.Messages
+	if c.Settings.Mode == "story" {
+		history = storyContext(c.Messages)
+	}
+
 	// Call upstream with context sliding.
 	ctx, cancel := context.WithTimeout(r.Context(), 5*time.Minute)
 	defer cancel()
-	reply, err := s.llm.Chat(ctx, p, c.Settings.Model, c.Settings.SystemPrompt, c.Messages, c.Settings.MaxTurns)
+	reply, err := s.llm.Chat(ctx, p, c.Settings.Model, c.Settings.SystemPrompt, history, c.Settings.MaxTurns)
 	if err != nil {
 		// Persist the user message even on failure so it isn't lost.
 		c.UpdatedAt = now
@@ -680,6 +687,22 @@ func (s *Server) handleChat(w http.ResponseWriter, r *http.Request) {
 	}
 
 	writeJSON(w, http.StatusOK, c)
+}
+
+func storyContext(messages []db.Message) []db.Message {
+	context := make([]db.Message, 0, len(messages))
+	lastUser := -1
+	for i, message := range messages {
+		if message.Role == "user" {
+			lastUser = i
+		}
+	}
+	for i, message := range messages {
+		if message.Role == "assistant" || i == lastUser {
+			context = append(context, message)
+		}
+	}
+	return context
 }
 
 // handleRegenerate removes the last assistant message from a conversation
@@ -738,7 +761,11 @@ func (s *Server) handleRegenerate(w http.ResponseWriter, r *http.Request) {
 	// Re-generate the response.
 	ctx, cancel := context.WithTimeout(r.Context(), 5*time.Minute)
 	defer cancel()
-	reply, err := s.llm.Chat(ctx, p, c.Settings.Model, c.Settings.SystemPrompt, c.Messages, c.Settings.MaxTurns)
+	history := c.Messages
+	if c.Settings.Mode == "story" {
+		history = storyContext(c.Messages)
+	}
+	reply, err := s.llm.Chat(ctx, p, c.Settings.Model, c.Settings.SystemPrompt, history, c.Settings.MaxTurns)
 	if err != nil {
 		writeErr(w, http.StatusBadGateway, err.Error())
 		return

@@ -190,6 +190,20 @@ html, body {
   letter-spacing: 0.5px;
 }
 
+.settings-toggle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  height: 34px;
+  color: var(--text);
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+.settings-toggle input {
+  accent-color: var(--accent);
+}
+
 .settings-grow {
   flex: 1;
   min-width: 200px;
@@ -611,6 +625,7 @@ html, body {
   padding-bottom: calc(16px + var(--safe-bottom));
   background: var(--bg-sidebar);
   border-top: 1px solid var(--border);
+  transform: translateY(calc(-1 * var(--keyboard-offset, 0px)));
 }
 
 #input-message {
@@ -1116,6 +1131,11 @@ html, body {
   }
 
   #input-area {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 30;
     padding-bottom: calc(16px + var(--safe-bottom));
   }
 
@@ -1182,6 +1202,10 @@ html, body {
     gap: 8px;
     padding: 12px;
     padding-bottom: calc(12px + var(--safe-bottom));
+  }
+
+  .chat-messages {
+    padding-bottom: calc(100px + var(--safe-bottom));
   }
 
   #input-message {
