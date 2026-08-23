@@ -8,7 +8,7 @@ Pre-built binaries for PI-CHAT GATEWAY are available below. Download the executa
 
 | Architecture | File | Download |
 |---|---|---|
-| Windows x64 (Intel/AMD 64-bit) | `server.exe` | [Download](windows_x64/server.exe) |
+| Windows x64 (Intel/AMD 64-bit) | `server.exe` | [Download](https://github.com/vividchatapp/vividhome/raw/refs/heads/main/executables/windows_x64/server.exe) |
 
 **How to run:** Double-click the `.exe` file, or run from Command Prompt / PowerShell:
 ```
@@ -21,10 +21,12 @@ server.exe -addr :8080 -data ./data
 
 | Architecture | File | Download |
 |---|---|---|
-| Linux x64 (Intel/AMD 64-bit) | `server` | [Download](linux_x64/server) |
-| Linux ARM64 (Pi 3/4/5 / Zero 2 W, 64-bit OS) | `server` | [Download](linux_arm64/server) |
-| Raspberry Pi Zero W / Pi 1 (ARMv6) | `server` | [Download](linux_arm_pi_zero_w/server) |
-| Raspberry Pi 2/3/4/5 (32-bit OS, ARMv7) | `server` | [Download](linux_arm_pi3_32/server) |
+| Linux x64 (Intel/AMD 64-bit) | `server` | [Download](https://github.com/vividchatapp/vividhome/raw/refs/heads/main/executables/linux_x64/server) |
+| Linux ARM64 (64-bit Linux systems) | `server` | [Download](https://github.com/vividchatapp/vividhome/raw/refs/heads/main/executables/linux_arm64/server) |
+| Raspberry Pi Zero W / Pi 1 (ARMv6) | `server` | [Download](https://github.com/vividchatapp/vividhome/raw/refs/heads/main/executables/linux_arm_pi_zero_w/server) |
+| Raspberry Pi 2/3/4/5 (32-bit OS, ARMv7) | `server` | [Download](https://github.com/vividchatapp/vividhome/raw/refs/heads/main/executables/linux_arm_pi3_32/server) |
+
+The Raspberry Pi builds provided here are 32-bit versions. The ARM64 build is not listed as a Raspberry Pi download.
 
 **How to run:**
 ```bash
@@ -43,8 +45,8 @@ To run it in the background (survives closing the terminal), use the helper scri
 
 | Architecture | File | Download |
 |---|---|---|
-| macOS Intel (x64) | `server` | [Download](mac_x64/server) |
-| macOS Apple Silicon (M1/M2/M3/M4) | `server` | [Download](mac_arm64/server) |
+| macOS Intel (x64) | `server` | [Download](https://github.com/vividchatapp/vividhome/raw/refs/heads/main/executables/mac_x64/server) |
+| macOS Apple Silicon (M1/M2/M3/M4) | `server` | [Download](https://github.com/vividchatapp/vividhome/raw/refs/heads/main/executables/mac_arm64/server) |
 
 **How to run:**
 ```bash
@@ -55,7 +57,7 @@ chmod +x server
 > **Note:** macOS may block the executable because it's from an unidentified developer. To bypass this:
 > - Go to **System Settings > Privacy & Security**
 > - Scroll down and click **"Open Anyway"** next to the blocked message
-> - Or in Terminal, run: `xattr -d com.apple.quarantine server`
+> - Or in Terminal, run `xattr -d com.apple.quarantine server`
 
 ---
 
@@ -68,4 +70,4 @@ When you start the server for the first time, it will:
 
 ## Building from Source
 
-If you prefer to build from source, see the main project [README.md](../README.md) for instructions, or run `build_all.bat` / `build_all.ps1` in this `executables/` folder.
+If you prefer to build from source, see the main project [README.md](../README.md) for instructions, or run `build_all.bat` / `build_all.ps1` in this folder.

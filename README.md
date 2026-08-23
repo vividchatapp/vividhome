@@ -1,5 +1,7 @@
 # PI-CHAT GATEWAY
 
+[Download the pre-built executable for your operating system](executables/README.md)
+
 A lightweight, self-hosted intranet web server that manages multi-chat sessions (ChatGPT/Gemini style UI), handles dynamic model selection across multiple LLM backends (Ollama / `llama.cpp`), and automatically manages context window limits per request.
 
 Optimized for the **Raspberry Pi Zero W** (ARMv6, 512MB RAM) — single Go binary, no Node.js, no Docker, no Python.
@@ -50,7 +52,7 @@ pi-chat-gateway/
 
 ## Pre-built Executables
 
-Ready-to-run binaries for all supported platforms are in the [`executables/`](executables/readme.md) folder, organized by OS/architecture — see [executables/readme.md](executables/readme.md) for download links and per-platform instructions.
+Ready-to-run binaries for all supported platforms are in the [`executables/`](executables/README.md) folder, organized by OS/architecture — see [executables/README.md](executables/README.md) for download links and per-platform instructions.
 
 To rebuild all of them from source, run `build_all.bat` or `build_all.ps1` inside the `executables/` folder.
 
