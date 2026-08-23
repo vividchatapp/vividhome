@@ -1,0 +1,9 @@
+# Runtime data and local secrets
+/data/
+
+# Local build artifacts
+/server.exe
+/server.exe~
+
+# LLM request/response dumps
+llm_dumps/

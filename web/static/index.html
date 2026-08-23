@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#343541">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="PI-CHAT">
+  <title>PI-CHAT GATEWAY</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <div id="app">
+    <!-- Mobile header -->
+    <div id="mobile-header">
+      <button id="btn-menu" class="btn btn-icon" aria-label="Toggle menu">
+        <svg class="icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+      <h1 id="mobile-title">PI-CHAT GATEWAY</h1>
+      <button id="btn-settings-toggle" class="btn btn-icon" aria-label="Toggle settings" aria-expanded="true">
+        <svg class="icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg>
+      </button>
+    </div>
+
+    <!-- Overlay for off-canvas sidebar on mobile -->
+    <div id="sidebar-overlay" class="hidden"></div>
+
+    <!-- Sidebar -->
+    <aside id="sidebar">
+      <div class="sidebar-header">
+        <h1>PI-CHAT GATEWAY</h1>
+        <button id="btn-new-chat" class="btn btn-primary btn-block">
+          <svg class="icon btn-svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          <span>New Chat</span>
+        </button>
+      </div>
+      <div id="conversation-list" class="conversation-list"></div>
+      <div class="sidebar-footer">
+        <button id="btn-clear-all" class="btn btn-danger btn-block">
+          <svg class="icon btn-svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+          <span>Clear All Chats</span>
+        </button>
+        <button id="btn-manage-providers" class="btn btn-secondary btn-block">
+          <svg class="icon btn-svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+          <span>Setup</span>
+        </button>
+      </div>
+    </aside>
+
+    <!-- Chat View -->
+    <main id="main" class="view">
+      <!-- Settings Bar -->
+      <div id="settings-bar">
+        <div class="settings-group">
+          <label for="sel-provider">Provider</label>
+          <select id="sel-provider"></select>
+        </div>
+        <div class="settings-group">
+          <label for="sel-model">Model</label>
+          <select id="sel-model"></select>
+        </div>
+        <div class="settings-group">
+          <label for="sel-system-prompt">System Prompt</label>
+          <select id="sel-system-prompt"></select>
+        </div>
+        <div class="settings-group">
+          <label for="sel-context">Context (turns)</label>
+          <select id="sel-context">
+            <option value="6">6</option>
+            <option value="12" selected>12</option>
+            <option value="20">20</option>
+            <option value="30">30</option>
+          </select>
+        </div>
+        <div class="settings-group">
+          <button id="btn-voice" class="btn btn-secondary voice-btn" title="Toggle voice">
+            <svg class="icon btn-svg voice-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5L6 9H2v6h4l5 4V5z"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>
+            <span class="voice-text">Voice Off</span>
+          </button>
+        </div>
+        <div class="settings-group">
+          <label for="sel-voice-speed">Speed</label>
+          <select id="sel-voice-speed">
+            <option value="1">1 (normal)</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="3" selected>3</option>
+            <option value="6">6</option>
+            <option value="7">7</option>
+            <option value="8">8</option>
+            <option value="9">9</option>
+            <option value="10">10</option>
+          </select>
+        </div>
+        <div class="settings-group">
+          <label for="sel-voice-name">Voice</label>
+          <select id="sel-voice-name"></select>
+        </div>
+        <button id="btn-save-settings" class="btn btn-secondary">Save</button>
+      </div>
+
+      <!-- Messages -->
+      <div id="chat-messages" class="chat-messages">
+        <div class="empty-state" id="empty-state">
+          <h2>Welcome to PI-CHAT GATEWAY</h2>
+          <p>Select a conversation or start a new chat.</p>
+        </div>
+      </div>
+
+      <!-- Input Area -->
+      <div id="input-area">
+        <textarea id="input-message" rows="1" placeholder="Type prompt here..."></textarea>
+        <button id="btn-send" class="btn btn-primary">Send</button>
+      </div>
+    </main>
+
+    <!-- Setup View -->
+    <main id="setup-page" class="view hidden">
+      <div class="setup-container">
+        <div class="setup-header">
+          <h1>Setup</h1>
+          <button id="btn-close-setup" class="btn btn-secondary">
+            <svg class="icon btn-svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+            <span>Back to Chat</span>
+          </button>
+        </div>
+
+        <section class="setup-section">
+          <h2>System Prompts</h2>
+          <p class="setup-hint">Name and save reusable system prompts. Select the one applied to new chats as the default.</p>
+          <div class="prompt-form">
+            <input type="text" id="prompt-name" placeholder="Prompt name (e.g., Code Reviewer)">
+            <textarea id="prompt-content" class="setup-textarea" rows="4" placeholder="Prompt content..."></textarea>
+            <div class="setup-actions">
+              <button id="btn-save-prompt" class="btn btn-primary">Save Prompt</button>
+              <button id="btn-cancel-prompt-edit" class="btn btn-secondary hidden">Cancel Edit</button>
+            </div>
+          </div>
+          <ul id="prompt-list" class="prompt-list"></ul>
+          <div class="setup-actions prompt-default-row">
+            <label for="sel-default-prompt">Default for new chats:</label>
+            <select id="sel-default-prompt">
+              <option value="">None</option>
+            </select>
+            <button id="btn-save-default-prompt" class="btn btn-secondary">Save Default</button>
+            <span id="setup-save-status" class="setup-status"></span>
+          </div>
+        </section>
+
+        <section class="setup-section">
+          <h2>Providers</h2>
+          <div class="provider-form">
+            <input type="text" id="prov-name" placeholder="Name (e.g., Main Rig - Ollama)">
+            <input type="text" id="prov-url" placeholder="Base URL (e.g., http://192.168.1.50:11434)">
+            <input type="password" id="prov-api-key" placeholder="API Key (optional, for online/cloud)">
+            <select id="prov-type">
+              <option value="ollama-online">Ollama Online</option>
+              <option value="ollama-local">Ollama Local</option>
+              <option value="llamacpp">llama.cpp</option>
+            </select>
+            <button type="button" id="btn-add-provider" class="btn btn-primary">Add / Update</button>
+          </div>
+          <ul id="provider-list" class="provider-list"></ul>
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <script src="/app.js"></script>
+</body>
+</html>
