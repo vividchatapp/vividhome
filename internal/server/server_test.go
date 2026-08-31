@@ -12,18 +12,20 @@ import (
 
 // fakeStore is a minimal in-memory Store for testing the server handlers.
 type fakeStore struct {
-	providers map[string]db.Provider
-	settings  map[string]db.AppSettings
-	prompts   map[string]map[string]db.SystemPrompt
-	convs     map[string]map[string]db.Conversation
+	providers     map[string]db.Provider
+	settings      map[string]db.AppSettings
+	prompts       map[string]map[string]db.SystemPrompt
+	globalPrompts map[string]db.SystemPrompt
+	convs         map[string]map[string]db.Conversation
 }
 
 func newFakeStore() *fakeStore {
 	return &fakeStore{
-		providers: make(map[string]db.Provider),
-		settings:  make(map[string]db.AppSettings),
-		prompts:   make(map[string]map[string]db.SystemPrompt),
-		convs:     make(map[string]map[string]db.Conversation),
+		providers:     make(map[string]db.Provider),
+		settings:      make(map[string]db.AppSettings),
+		prompts:       make(map[string]map[string]db.SystemPrompt),
+		globalPrompts: make(map[string]db.SystemPrompt),
+		convs:         make(map[string]map[string]db.Conversation),
 	}
 }
 
@@ -45,6 +47,31 @@ func TestStoryContextKeepsAssistantRepliesAndLatestUserMessage(t *testing.T) {
 		if message.Content != expected[i] {
 			t.Errorf("message %d: expected %q, got %q", i, expected[i], message.Content)
 		}
+	}
+}
+
+func TestSystemPromptsMergeGlobalAndLocal(t *testing.T) {
+	store := newFakeStore()
+	store.SaveSystemPrompt("global", db.SystemPrompt{ID: "g1", Name: "Global prompt", Content: "global content", Scope: "global"})
+	store.SaveSystemPrompt("client_a", db.SystemPrompt{ID: "l1", Name: "Local prompt", Content: "local content"})
+	store.SaveSystemPrompt("client_a", db.SystemPrompt{ID: "g1", Name: "Local override", Content: "override content"})
+
+	prompts, err := store.ListSystemPrompts("client_a")
+	if err != nil {
+		t.Fatalf("expected list to succeed, got %v", err)
+	}
+	if len(prompts) != 2 {
+		t.Fatalf("expected 2 merged prompts, got %d: %+v", len(prompts), prompts)
+	}
+
+	foundLocal := false
+	for _, p := range prompts {
+		if p.ID == "g1" && p.Content == "override content" {
+			foundLocal = true
+		}
+	}
+	if !foundLocal {
+		t.Fatalf("expected local prompt to override the global prompt with same id, got %+v", prompts)
 	}
 }
 
@@ -76,15 +103,25 @@ func (f *fakeStore) DeleteProvider(id string) error {
 
 func (f *fakeStore) ListSystemPrompts(clientID string) ([]db.SystemPrompt, error) {
 	list := make([]db.SystemPrompt, 0)
+	merged := make(map[string]db.SystemPrompt)
+	for _, p := range f.globalPrompts {
+		merged[p.ID] = p
+	}
 	if m, ok := f.prompts[clientID]; ok {
 		for _, p := range m {
-			list = append(list, p)
+			merged[p.ID] = p
 		}
+	}
+	for _, p := range merged {
+		list = append(list, p)
 	}
 	return list, nil
 }
 
 func (f *fakeStore) GetSystemPrompt(clientID, id string) (db.SystemPrompt, error) {
+	if p, ok := f.globalPrompts[id]; ok {
+		return p, nil
+	}
 	if m, ok := f.prompts[clientID]; ok {
 		if p, ok := m[id]; ok {
 			return p, nil
@@ -94,6 +131,10 @@ func (f *fakeStore) GetSystemPrompt(clientID, id string) (db.SystemPrompt, error
 }
 
 func (f *fakeStore) SaveSystemPrompt(clientID string, p db.SystemPrompt) error {
+	if p.Scope == "global" {
+		f.globalPrompts[p.ID] = p
+		return nil
+	}
 	if f.prompts[clientID] == nil {
 		f.prompts[clientID] = make(map[string]db.SystemPrompt)
 	}

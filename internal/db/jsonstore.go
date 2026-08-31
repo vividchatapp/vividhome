@@ -226,7 +226,44 @@ func moveFile(src, dst string) error {
 	return os.Remove(src)
 }
 
-// --- System prompts (scoped to a client/browser) ---
+// --- System prompts (local to a client/browser and global across all users) ---
+
+func (s *JSONStore) globalSystemPromptsPath() string {
+	return filepath.Join(s.dir, "system_prompts.json")
+}
+
+func (s *JSONStore) normalizeSystemPromptScope(p SystemPrompt) SystemPrompt {
+	if p.Scope == "" {
+		p.Scope = "local"
+	}
+	return p
+}
+
+func (s *JSONStore) mergeSystemPrompts(globalPrompts, localPrompts []SystemPrompt) []SystemPrompt {
+	merged := make([]SystemPrompt, 0, len(globalPrompts)+len(localPrompts))
+	byID := make(map[string]SystemPrompt, len(globalPrompts)+len(localPrompts))
+	for _, p := range globalPrompts {
+		p = s.normalizeSystemPromptScope(p)
+		byID[p.ID] = p
+	}
+	for _, p := range localPrompts {
+		p = s.normalizeSystemPromptScope(p)
+		byID[p.ID] = p
+	}
+	for _, p := range byID {
+		merged = append(merged, p)
+	}
+	sort.Slice(merged, func(i, j int) bool {
+		if merged[i].Scope == merged[j].Scope {
+			return merged[i].Name < merged[j].Name
+		}
+		if merged[i].Scope == "global" {
+			return true
+		}
+		return false
+	})
+	return merged
+}
 
 func (s *JSONStore) ListSystemPrompts(clientID string) ([]SystemPrompt, error) {
 	s.mu.Lock()
@@ -235,7 +272,15 @@ func (s *JSONStore) ListSystemPrompts(clientID string) ([]SystemPrompt, error) {
 	if err != nil {
 		return nil, err
 	}
-	return s.loadSystemPromptsFromDir(dir)
+	globalPrompts, err := s.loadSystemPromptsFromPath(s.globalSystemPromptsPath())
+	if err != nil {
+		return nil, err
+	}
+	localPrompts, err := s.loadSystemPromptsFromDir(dir)
+	if err != nil {
+		return nil, err
+	}
+	return s.mergeSystemPrompts(globalPrompts, localPrompts), nil
 }
 
 func (s *JSONStore) GetSystemPrompt(clientID, id string) (SystemPrompt, error) {
@@ -245,13 +290,22 @@ func (s *JSONStore) GetSystemPrompt(clientID, id string) (SystemPrompt, error) {
 	if err != nil {
 		return SystemPrompt{}, err
 	}
-	prompts, err := s.loadSystemPromptsFromDir(dir)
+	localPrompts, err := s.loadSystemPromptsFromDir(dir)
 	if err != nil {
 		return SystemPrompt{}, err
 	}
-	for _, p := range prompts {
+	for _, p := range localPrompts {
 		if p.ID == id {
-			return p, nil
+			return s.normalizeSystemPromptScope(p), nil
+		}
+	}
+	globalPrompts, err := s.loadSystemPromptsFromPath(s.globalSystemPromptsPath())
+	if err != nil {
+		return SystemPrompt{}, err
+	}
+	for _, p := range globalPrompts {
+		if p.ID == id {
+			return s.normalizeSystemPromptScope(p), nil
 		}
 	}
 	return SystemPrompt{}, errors.New("system prompt not found")
@@ -260,23 +314,42 @@ func (s *JSONStore) GetSystemPrompt(clientID, id string) (SystemPrompt, error) {
 func (s *JSONStore) SaveSystemPrompt(clientID string, p SystemPrompt) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	dir, err := s.ensureClientLocked(clientID)
-	if err != nil {
+	p = s.normalizeSystemPromptScope(p)
+	if p.Scope == "global" {
+		prompts, err := s.loadSystemPromptsFromPath(s.globalSystemPromptsPath())
+		if err != nil {
+			return err
+		}
+		updated := false
+		for i, existing := range prompts {
+			if existing.ID == p.ID {
+				prompts[i] = p
+				updated = true
+				break
+			}
+		}
+		if !updated {
+			prompts = append(prompts, p)
+		}
+		return s.saveSystemPromptsToPath(s.globalSystemPromptsPath(), prompts)
+	}
+	if _, err := s.ensureClientLocked(clientID); err != nil {
 		return err
 	}
+	dir := s.clientDir(clientID)
 	prompts, err := s.loadSystemPromptsFromDir(dir)
 	if err != nil {
 		return err
 	}
-	found := false
+	updated := false
 	for i, existing := range prompts {
 		if existing.ID == p.ID {
 			prompts[i] = p
-			found = true
+			updated = true
 			break
 		}
 	}
-	if !found {
+	if !updated {
 		prompts = append(prompts, p)
 	}
 	return s.saveSystemPromptsToDir(dir, prompts)
@@ -289,13 +362,29 @@ func (s *JSONStore) DeleteSystemPrompt(clientID, id string) error {
 	if err != nil {
 		return err
 	}
-	prompts, err := s.loadSystemPromptsFromDir(dir)
+	localPrompts, err := s.loadSystemPromptsFromDir(dir)
 	if err != nil {
 		return err
 	}
-	filtered := make([]SystemPrompt, 0, len(prompts))
+	for _, p := range localPrompts {
+		if p.ID == id {
+			filtered := make([]SystemPrompt, 0, len(localPrompts))
+			for _, existing := range localPrompts {
+				if existing.ID == id {
+					continue
+				}
+				filtered = append(filtered, existing)
+			}
+			return s.saveSystemPromptsToDir(dir, filtered)
+		}
+	}
+	globalPrompts, err := s.loadSystemPromptsFromPath(s.globalSystemPromptsPath())
+	if err != nil {
+		return err
+	}
+	filtered := make([]SystemPrompt, 0, len(globalPrompts))
 	found := false
-	for _, p := range prompts {
+	for _, p := range globalPrompts {
 		if p.ID == id {
 			found = true
 			continue
@@ -305,11 +394,11 @@ func (s *JSONStore) DeleteSystemPrompt(clientID, id string) error {
 	if !found {
 		return errors.New("system prompt not found")
 	}
-	return s.saveSystemPromptsToDir(dir, filtered)
+	return s.saveSystemPromptsToPath(s.globalSystemPromptsPath(), filtered)
 }
 
-func (s *JSONStore) loadSystemPromptsFromDir(dir string) ([]SystemPrompt, error) {
-	data, err := os.ReadFile(filepath.Join(dir, "system_prompts.json"))
+func (s *JSONStore) loadSystemPromptsFromPath(path string) ([]SystemPrompt, error) {
+	data, err := os.ReadFile(path)
 	if err != nil {
 		if errors.Is(err, os.ErrNotExist) {
 			return []SystemPrompt{}, nil
@@ -323,15 +412,29 @@ func (s *JSONStore) loadSystemPromptsFromDir(dir string) ([]SystemPrompt, error)
 	if prompts == nil {
 		prompts = []SystemPrompt{}
 	}
+	for i := range prompts {
+		prompts[i] = s.normalizeSystemPromptScope(prompts[i])
+	}
 	return prompts, nil
 }
 
-func (s *JSONStore) saveSystemPromptsToDir(dir string, prompts []SystemPrompt) error {
+func (s *JSONStore) loadSystemPromptsFromDir(dir string) ([]SystemPrompt, error) {
+	return s.loadSystemPromptsFromPath(filepath.Join(dir, "system_prompts.json"))
+}
+
+func (s *JSONStore) saveSystemPromptsToPath(path string, prompts []SystemPrompt) error {
+	for i := range prompts {
+		prompts[i] = s.normalizeSystemPromptScope(prompts[i])
+	}
 	data, err := json.MarshalIndent(prompts, "", "  ")
 	if err != nil {
 		return err
 	}
-	return os.WriteFile(filepath.Join(dir, "system_prompts.json"), data, 0o644)
+	return os.WriteFile(path, data, 0o644)
+}
+
+func (s *JSONStore) saveSystemPromptsToDir(dir string, prompts []SystemPrompt) error {
+	return s.saveSystemPromptsToPath(filepath.Join(dir, "system_prompts.json"), prompts)
 }
 
 // --- App settings (scoped to a client/browser) ---

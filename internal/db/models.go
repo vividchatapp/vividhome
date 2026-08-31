@@ -12,10 +12,12 @@ type Provider struct {
 }
 
 // SystemPrompt is a named, reusable system prompt.
+// Scope is either "local" (per browser/client) or "global" (shared for all users).
 type SystemPrompt struct {
 	ID      string `json:"id"`
 	Name    string `json:"name"`
 	Content string `json:"content"`
+	Scope   string `json:"scope,omitempty"`
 }
 
 // Settings holds per-conversation configuration.

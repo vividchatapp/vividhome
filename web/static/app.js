@@ -73,6 +73,7 @@
     btnCloseSetup: $('btn-close-setup'),
     promptName: $('prompt-name'),
     promptContent: $('prompt-content'),
+    promptGlobal: $('prompt-global'),
     btnSavePrompt: $('btn-save-prompt'),
     btnCancelPromptEdit: $('btn-cancel-prompt-edit'),
     promptList: $('prompt-list'),
@@ -422,7 +423,9 @@
         <div class="prompt-name"></div>
         <div class="prompt-content-preview"></div>
       `;
-      info.querySelector('.prompt-name').textContent = p.name + (p.id === state.defaultPromptId ? ' ★' : '');
+      const isGlobal = (p.scope || 'local') === 'global';
+      const scopeText = isGlobal ? ' [Global]' : ' [Local]';
+      info.querySelector('.prompt-name').textContent = p.name + scopeText + (p.id === state.defaultPromptId ? ' ★' : '');
       info.querySelector('.prompt-content-preview').textContent = p.content;
 
       const actions = document.createElement('div');
@@ -530,17 +533,19 @@
   function resetPromptForm() {
     el.promptName.value = '';
     el.promptContent.value = '';
+    el.promptGlobal.checked = false;
     state.editingPromptId = null;
     el.btnCancelPromptEdit.classList.add('hidden');
-    el.btnSavePrompt.textContent = 'Save Prompt';
+    el.btnSavePrompt.textContent = 'Save Role';
   }
 
   function startEditingPrompt(prompt) {
     state.editingPromptId = prompt.id;
     el.promptName.value = prompt.name;
     el.promptContent.value = prompt.content;
+    el.promptGlobal.checked = (prompt.scope || 'local') === 'global';
     el.btnCancelPromptEdit.classList.remove('hidden');
-    el.btnSavePrompt.textContent = 'Update Prompt';
+    el.btnSavePrompt.textContent = 'Update Role';
     el.promptName.focus();
   }
 
@@ -552,7 +557,11 @@
       return;
     }
     try {
-      const body = { name, content };
+      const body = {
+        name,
+        content,
+        scope: el.promptGlobal.checked ? 'global' : 'local',
+      };
       if (state.editingPromptId) {
         body.id = state.editingPromptId;
       }

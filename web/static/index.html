@@ -139,19 +139,23 @@
         </div>
 
         <section class="setup-section">
-          <h2>System Prompts</h2>
-          <p class="setup-hint">Name and save reusable system prompts. Select the one applied to new chats as the default.</p>
+          <h2>Roles</h2>
+          <p class="setup-hint">Name and save reusable roles. Select the one applied to new chats as the default.</p>
           <div class="prompt-form">
-            <input type="text" id="prompt-name" placeholder="Prompt name (e.g., Code Reviewer)">
-            <textarea id="prompt-content" class="setup-textarea" rows="4" placeholder="Prompt content..."></textarea>
+            <input type="text" id="prompt-name" placeholder="Role name (e.g., Code Reviewer)">
+            <textarea id="prompt-content" class="setup-textarea" rows="4" placeholder="Role prompt content..."></textarea>
             <div class="setup-actions">
-              <button id="btn-save-prompt" class="btn btn-primary">Save Prompt</button>
+              <label class="inline-toggle">
+                <input id="prompt-global" type="checkbox">
+                <span>Global role</span>
+              </label>
+              <button id="btn-save-prompt" class="btn btn-primary">Save Role</button>
               <button id="btn-cancel-prompt-edit" class="btn btn-secondary hidden">Cancel Edit</button>
             </div>
           </div>
           <ul id="prompt-list" class="prompt-list"></ul>
           <div class="setup-actions prompt-default-row">
-            <label for="sel-default-prompt">Default for new chats:</label>
+            <label for="sel-default-prompt">Default role for new chats:</label>
             <select id="sel-default-prompt">
               <option value="">None</option>
             </select>

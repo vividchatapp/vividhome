@@ -230,6 +230,13 @@ func (s *Server) handleSaveSystemPrompt(w http.ResponseWriter, r *http.Request) 
 		writeErr(w, http.StatusBadRequest, "name is required")
 		return
 	}
+	if p.Scope == "" {
+		p.Scope = "local"
+	}
+	if p.Scope != "local" && p.Scope != "global" {
+		writeErr(w, http.StatusBadRequest, "scope must be local or global")
+		return
+	}
 	if p.ID == "" {
 		p.ID = db.NewID()
 	}

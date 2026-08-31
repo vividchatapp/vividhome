@@ -795,6 +795,32 @@ html, body {
   flex-wrap: wrap;
 }
 
+.inline-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: rgba(16, 163, 127, 0.08);
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.inline-toggle:hover {
+  border-color: var(--accent);
+}
+
+.inline-toggle input {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--accent);
+  margin: 0;
+  cursor: pointer;
+}
+
 .setup-status {
   font-size: 12px;
   color: var(--accent);
